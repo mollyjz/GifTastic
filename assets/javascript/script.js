@@ -1,67 +1,64 @@
 var newBreed = "";
-
+//var searchTerms = "";
 var breedsArray = ["poodle", "golden retriever", "springer spaniel", "dachsund", "chihuahua", "brittany spaniel", "collie", "greyhound", "chocolate lab", "shih tzu", "pug", "visla"];
+var dogButton;
 
-//statically load form to submit dog breed types, AND pre-loaded dog breed buttons????
+//NOW, PREEXISTING BUTTONS DON'T LOAD GIFS UNTIL YOU'VE CLICKED AN ADDED BUTTON!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-//function to create buttons for items in breeds array
-function addButtons() {
+function addButtons() { //function to add buttons for items in array                                    //WORKS
     $("#button-container").empty(); //delete existing buttons to avoid repeats
-    for (var i = 0; i < breedsArray.length; i++) {
-        //console.log("hello?") - WORKS!!;
-        var dogButton = $("<button>");
-        dogButton.addClass("dog-button");
-        dogButton.attr("data-breed", breedsArray[i]);
-        dogButton.text(breedsArray[i]);
-        $("#button-container").append(dogButton);
+    for (var i = 0; i < breedsArray.length; i++) { //create button for each item in dog breeds array
+        var dogButton = $("<button>"); //create and store button
+        dogButton.addClass("dog-button"); //add class
+        dogButton.attr("data-breed", breedsArray[i]);  //ONLY CAPTURING FIRST BREED IN ARRAY!!!!!!!!!!!!!!!!!!!
+        dogButton.text(breedsArray[i]); //add text of each breed to its button
+        $("#button-container").append(dogButton); //append button to page
+        //console.log(breedsArray[i])
+        //console.log(breed) doesn't work                                                               //WORKS
     }
 }
 
-//NEED TO DISPLAY INITIAL BUTTONS *AND* ONES THAT ARE ADDED!!!!!
-//when new dog breed is submitted, push to array and create button
-$(document).ready(function() { //on load...
-    addButtons(); //add buttons for breeds in pre-loaded array
-
-    $(".dog-button").on("click", function() { //when dog breed button clicked, load 10 gifs related to that breed
-        //console.log("hey!") - WORKS!!;
-        var newBreed = $("#breed-field").val().trim(); //capture new breeds entered by user
-        var apiKey = "";
-        var url = "https://api.giphy.com/v1/gifs/search" //EXISTING BUTTONS SHOULD ALSO LOAD GIFS!!!!!!!!!!!!!!!!!!!!
-        url += "?" + "q=" + $.param ({
-            'q': newBreed, //NOT CAPTURING SEARCH TERMS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            'apiKey': "rgefqvI6qcj2vCUzG1vz8YPeb2wKIKEZ"
+$(document).ready(function() { //on page load...
+    addButtons(); //add buttons for breeds in pre-loaded array                                          //WORKS
+    $("#submit-button").on("click", function(event) { //any time submit button is clicked...
+        event.preventDefault();
+        newBreed = $("#breed-field").val().trim(); //capture new breeds entered by user
+        breedsArray.push(newBreed); //push new breeds to array                                          //WORKS
+        //console.log("this is working!");
+        addButtons(); //add button for each new array item
+        //console.log(data-breed);
+    $(".dog-button").on("click", function() { //when dog breed button clicked...                    //NOT WORKING!!!!!
+        var buttonText = $(".dog-button").data("breed"); //capturing text of that dog button
+        var url = "https://api.giphy.com/v1/gifs/search";
+        url += "?" + $.param({
+            'q': buttonText, //NOW, NO MATTER WHAT BUTTON IS CLICKED, 'POODLE' IS ALWAYS THE SEARCH TERM!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            'limit': 10,
+            'rating': 'pg',
+            'api_key': 'rgefqvI6qcj2vCUzG1vz8YPeb2wKIKEZ'
         });
-        console.log(url);
-        //var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + newBreed + "&limit=10" + "&rating=pg" + "&api_key=" + apiKey;
-        //var queryURL = "https://api.giphy.com/v1/gifs/search?q=dogs+&limit=10+&rating=pg+&api_key=rgefqvI6qcj2vCUzG1vz8YPeb2wKIKEZ";
-        $.ajax({
+        $.ajax({                                                                                        //WORKS
             url: url,
             method: "GET"
-        }).then(function(response) {
-            $("#submit-button").on("click", function(event) { //when submit button is clicked...
-                var newBreed = $("#breed-field").val().trim(); //capture new breeds entered by user
-                event.preventDefault();
-                breedsArray.push(newBreed); //SHOULD ONLY ADD ONCE ON CLICK //push new breeds to breed array
-                //console.log("hello") WORKS;
-                addButtons(); //add buttons for new array items
-            });
-            for (var i = 0; i < response.data.length; i++) {
-                //console.log("what?") - works with updated queryURL;
-                var rating = response.data[i].rating;
-                var stillImageUrl = response.data[i].images.fixed_height_still.url;
-                var movingImageUrl = response.data[i].images.fixed_height.url;
-                var stillImage = $("<img>");
-                stillImage.attr("src", stillImageUrl);
-                $("#gif-container").prepend(stillImage);
-                stillImage.prepend(rating);
-                stillImage.on("click", function() { //when still image clicked, it starts moving
-                    stillImage.attr("src", movingImageUrl);
-                    var movingImage = $("<img>"); //when moving image clicked, it stops moving
-                        movingImage.on("click", function() {
-                            movingImage.attr("src", stillImageUrl)
-                        });
+        }).then(function(response) {                                                                //NOT WORKING!!!!!
+            console.log(url);
+            for (var i = 0; i < response.data.length; i++) { //for each of the 10 gif responses from the api...
+                //console.log("this works!");
+                var rating = response.data[i].rating; //grab that gif's rating from api data
+                var stillImageUrl = response.data[i].images.fixed_height_still.url; //store URL for still image
+                var movingImageUrl = response.data[i].images.fixed_height.url; //store URL for animated gif
+                var stillImage = $("<img>"); //create variable to store still image
+                stillImage.attr("src", stillImageUrl); //assign URL to still image
+                $("#gif-container").prepend(stillImage); //prepend still image to container
+                stillImage.prepend(rating); //prepend rating to still image
+                stillImage.on("click", function() { //when still image clicked...
+                    stillImage.attr("src", movingImageUrl); //change URL to that of the moving gif so it starts moving
+                    var movingImage = $("<img>"); //create variable to store moving image
+                        movingImage.on("click", function() { //when moving image clicked, ...
+                            movingImage.attr("src", stillImageUrl) //change src back to that of the still image so that it stops moving
+                        }); // ^ ONLY WORKING FOR FIRST IMAGE IN ARRAY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 });
             }
         });
+});
 });
 });
