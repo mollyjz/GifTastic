@@ -16,8 +16,7 @@ button,  #submit-button {
 }
 
 #add-breed-area {
-    margin: auto;
-    width: 50%;
+    text-align: center;
 }
 
 .still-image {
