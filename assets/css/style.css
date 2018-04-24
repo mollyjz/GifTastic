@@ -1,0 +1,25 @@
+body {
+    font-family: Georgia, 'Times New Roman', Times, serif
+}
+
+button,  #submit-button {
+    color: white;
+    background: royalblue;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    padding: 5px;
+    margin-right: 10px;
+    margin-left: 10px
+}
+
+#button-container {
+    padding: 10px;
+}
+
+#add-breed-area {
+    margin: auto;
+    width: 50%;
+}
+
+.still-image {
+    margin: 10px
+}
